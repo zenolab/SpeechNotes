@@ -1,4 +1,4 @@
 
-class Note {
+class Speech {
   String entry;
 }

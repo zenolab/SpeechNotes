@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:speech_notes/podo/note.dart';
+import 'package:speech_notes/model/speech.dart';
 import 'package:speech_recognition/speech_recognition.dart';
 
-import 'common.dart';
+import '../common.dart';
 
 class Details extends StatefulWidget {
   @override
@@ -14,10 +14,10 @@ class _VoiceSampleState extends State<Details> {
   bool _isAvailable = false;
   bool _isListening = false;
 
-  String resultText = "";
+  String _resultText = "";
 
-  Note speechContainer =  Note();
-  var txtEntryController = TextEditingController();
+  Speech _speechContainer =  Speech();
+  var _txtEntryController = TextEditingController();
 
   @override
   void initState() {
@@ -27,8 +27,8 @@ class _VoiceSampleState extends State<Details> {
 
   @override
   Widget build(BuildContext context) {
-    txtEntryController.text = resultText;
-    speechContainer.entry = txtEntryController.text;
+    _txtEntryController.text = _resultText;
+    _speechContainer.entry = _txtEntryController.text;
 
     Scaffold scaffold = Scaffold(
       body: Container(
@@ -64,19 +64,19 @@ class _VoiceSampleState extends State<Details> {
                         else
                           return null;
                       },
-                      controller: txtEntryController,
+                      controller: _txtEntryController,
                       keyboardType: TextInputType.text,
                       onFieldSubmitted: (txtEntryController) {
-                        speechContainer.entry = this.txtEntryController.text;
-                        Navigator.pop(context, speechContainer);
+                        _speechContainer.entry = this._txtEntryController.text;
+                        Navigator.pop(context, _speechContainer);
                       },
                       focusNode: FocusNode(),
                     ),
                     new SizedBox(height: 5.0),
                     new RaisedButton(
                       onPressed: () {
-                        speechContainer.entry = txtEntryController.text;
-                        Navigator.pop(context, speechContainer);
+                        _speechContainer.entry = _txtEntryController.text;
+                        Navigator.pop(context, _speechContainer);
                       },
                       child: Text('Done'),
                       color: Colors.blue,
@@ -89,7 +89,7 @@ class _VoiceSampleState extends State<Details> {
       ),
     );
 
-    speechContainer.entry = txtEntryController.text;
+    _speechContainer.entry = _txtEntryController.text;
     return scaffold;
   }
 
@@ -97,7 +97,7 @@ class _VoiceSampleState extends State<Details> {
   void dispose() {
     // Clean up the controller when the widget is removed from the widget tree.
     // This also removes the _printLatestValue listener.
-    txtEntryController.dispose();
+    _txtEntryController.dispose();
     super.dispose();
   }
 
@@ -113,7 +113,7 @@ class _VoiceSampleState extends State<Details> {
     );
 
     _speechRecognition.setRecognitionResultHandler(
-      (String speech) => setState(() => resultText = speech),
+      (String speech) => setState(() => _resultText = speech),
     );
 
     _speechRecognition.setRecognitionCompleteHandler(
@@ -127,7 +127,7 @@ class _VoiceSampleState extends State<Details> {
 
   void activateSpeech() {
     if (_isAvailable && !_isListening) {
-      _speechRecognition.listen(locale: rus).then((result) => print('$result'));
+      _speechRecognition.listen(locale: eng).then((result) => print('$result'));
     }
   }
 }
