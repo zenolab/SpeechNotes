@@ -5,6 +5,7 @@ import 'package:speech_recognition/speech_recognition.dart';
 import '../common.dart';
 
 class Details extends StatefulWidget {
+
   @override
   _VoiceSampleState createState() => _VoiceSampleState();
 }
@@ -50,14 +51,14 @@ class _VoiceSampleState extends State<Details> {
             ),
             Container(
                 padding: EdgeInsets.all(10.0),
-                child: new Form(
-                    child: new Column(
+                child:  Form(
+                    child:  Column(
                   children: <Widget>[
-                    new Text(
+                     Text(
                       'Note Description:',
                       style: TextStyle(fontSize: 18.0),
                     ),
-                    new TextFormField(
+                     TextFormField(
                       validator: (value) {
                         if (value.isEmpty)
                           return 'Please describe a note';
@@ -72,8 +73,8 @@ class _VoiceSampleState extends State<Details> {
                       },
                       focusNode: FocusNode(),
                     ),
-                    new SizedBox(height: 5.0),
-                    new RaisedButton(
+                     SizedBox(height: 5.0),
+                     RaisedButton(
                       onPressed: () {
                         _speechContainer.entry = _txtEntryController.text;
                         Navigator.pop(context, _speechContainer);

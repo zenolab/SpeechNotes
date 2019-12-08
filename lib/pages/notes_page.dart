@@ -1,47 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' as prefix0;
-import 'package:speech_notes/podo/speech.dart';
+import 'package:speech_notes/model/speech.dart';
 import 'package:speech_notes/util.dart';
 
 import '../block/notess_block.dart';
-import 'details.dart';
-import '../model/client_model.dart';
+import 'details_page.dart';
+import '../model/note_model.dart';
 
 class NoteApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(title: 'Note List', home: new NoteList());
+    return  MaterialApp(title: 'Note List', home:  NoteList());
   }
 }
 
 class NoteList extends StatefulWidget {
   @override
-  createState() => new NoteListState();
+  createState() =>  NoteListState();
 }
 
 class NoteListState extends State<NoteList> {
-  List<String> _noteItems = [];
-
-  final bloc = NotesBloc();
+  Stream<int> myStream;
+  var _bloc;
 
   @override
   void initState() {
+    _bloc = NotesBloc();
     super.initState();
-
   }
-
 
   @override
   Widget build(BuildContext context) {
-    Scaffold scaffold = new Scaffold(
-      appBar: new AppBar(title: new Text('Note List')),
-      body:
-
-     // _buildNoteList(), //First
-
-      //..................Second.......................................
-      StreamBuilder<List<Note>>(
-        stream: bloc.notes,
+    Scaffold scaffold =  Scaffold(
+      appBar:  AppBar(title:  Text('Note List')),
+      body: StreamBuilder<List<Note>>(
+        stream: _bloc.notes,
         builder: (BuildContext context, AsyncSnapshot<List<Note>> snapshot) {
           if (snapshot.hasData) {
 
@@ -54,7 +46,7 @@ class NoteListState extends State<NoteList> {
                   key: UniqueKey(),
                   background: Container(color: Colors.red),
                   onDismissed: (direction) {
-                    bloc.delete(item.id);
+                    _promptRemoveNoteItem(item);
                   },
                   child: ListTile(
                     title: Text(item.txt),
@@ -66,7 +58,6 @@ class NoteListState extends State<NoteList> {
                     ),
                   ),
                 );
-
               },
             );
 
@@ -75,15 +66,11 @@ class NoteListState extends State<NoteList> {
           }
         },
       ),
-      //.........................................................
-      floatingActionButton: new FloatingActionButton(
-        tooltip: 'Add task',
-        child: new Icon(Icons.add),
+      floatingActionButton:  FloatingActionButton(
+        tooltip: 'Add note',
+        child: Icon(Icons.add),
         onPressed: () {
-          print("--Pressed button mic");
           _pushAddNoteDetailsScreen();
-
-        //  bloc.add(rnd);
         },
       ),
     );
@@ -91,58 +78,59 @@ class NoteListState extends State<NoteList> {
   }
 
   void _pushAddNoteDetailsScreen() {
-    navigateToSubPage(context);
+       navigateToSubPage(context);
   }
+
 
   Future navigateToSubPage(context) async {
-    Speech speechContainer = Speech();
-    speechContainer =
+    Speech speechResult = Speech();
+    speechResult =
         await Navigator.push(context, MaterialPageRoute(builder: (context) => Details()));
-    _addNoteItem(speechContainer);
+    _addNoteItem(speechResult);
+
   }
 
-  void _addNoteItem(Speech speech) {
+  void _addNoteItem(Speech speech) async {
     if (speech != null) {
-      setState(() => _noteItems.add(capitalizeFirstLetter(speech.entry)));
       Note note = Note();
-      note.txt = capitalizeFirstLetter(speech.entry);
-      bloc.add(note);
+      note = converterToNote(speech);
+      _bloc.add(note);
     }
   }
 
-  void _removeNoteItem(int index) {
-    setState(() => _noteItems.removeAt(index));
+  void _removeNoteItem(Note item) {
+    setState(() =>  _bloc.delete(item.id));
   }
 
-//  void _promptRemoveNoteItem(int index) {
-//    showDialog(
-//        context: context,
-//        builder: (BuildContext context) {
-//          return new AlertDialog(title: new Text(' "${_noteItems[index]}" '), actions: <Widget>[
-//            new FlatButton(
-//                child: new Text('Cancel'),
-//                // The alert is actually part of the navigation stack, so to close it, we
-//                // need to pop it.
-//                onPressed: () => Navigator.of(context).pop()),
-//            new FlatButton(
-//                child: new Text('Remove?'),
-//                onPressed: () {
-//                  _removeNoteItem(index);
-//                  Navigator.of(context).pop();
-//                })
-//          ]);
-//        });
-//  }
-
-
-//  Widget _buildNoteItem(String noteText, int index) {
-//    return new ListTile(title: new Text(noteText), onTap: () => _promptRemoveNoteItem(index));
-//  }
-
+  void _promptRemoveNoteItem(Note item) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return  AlertDialog(title:  Text(' "${item.txt}" '), actions: <Widget>[
+            FlatButton(
+                child:  Text('Cancel'),
+                // The alert is actually part of the navigation stack,
+                // so to close it, need to pop it.
+               onPressed: () => setState(() =>  Navigator.of(context).pop() )
+            ),
+             FlatButton(
+                child:  Text('Remove?'),
+                onPressed: () {
+                  _removeNoteItem(item);
+                  Navigator.of(context).pop();
+                })
+          ]);
+        });
+  }
 
   @override
   void dispose() {
-    bloc.dispose();
+    _bloc.dispose();
     super.dispose();
   }
+
+}
+
+Note converterToNote(Speech speech) {
+  return Note.entry(capitalizeFirstLetter(speech.entry));
 }
