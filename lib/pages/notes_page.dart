@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:speech_notes/model/converter.dart';
 import 'package:speech_notes/model/speech.dart';
 import 'package:speech_notes/util.dart';
 
@@ -6,6 +7,8 @@ import '../block/notess_block.dart';
 import 'details_page.dart';
 import '../model/note_model.dart';
 
+///Not work update ui page after back from Details Screen
+///Try with Inherited widget such as  -  final bloc = MyBloc.of(context);
 class NoteApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -20,16 +23,16 @@ class NoteList extends StatefulWidget {
 
 class NoteListState extends State<NoteList> {
   Stream<int> myStream;
-  var _bloc;
+  var _bloc = NotesBloc();
 
   @override
   void initState() {
-    _bloc = NotesBloc();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    print("--NoteApp build");
     Scaffold scaffold =  Scaffold(
       appBar:  AppBar(title:  Text('Note List')),
       body: StreamBuilder<List<Note>>(
@@ -74,27 +77,43 @@ class NoteListState extends State<NoteList> {
         },
       ),
     );
-    return scaffold;
+    WillPopScope willPopScope = WillPopScope(child: scaffold,onWillPop:_handleBack);
+
+    return willPopScope;
+  }
+
+  Future<bool> _handleBack() {
+    _bloc.getNotes();//work
+    return Future<bool>.value(false);
   }
 
   void _pushAddNoteDetailsScreen() {
-       navigateToSubPage(context);
+    navigateToSubPage(context);
   }
-
 
   Future navigateToSubPage(context) async {
-    Speech speechResult = Speech();
-    speechResult =
-        await Navigator.push(context, MaterialPageRoute(builder: (context) => Details()));
-    _addNoteItem(speechResult);
-
+    print("----NoteApp hash code ${_bloc.hashCode}");
+     Navigator.push(context, MaterialPageRoute(builder: (_) => Details(_bloc)));
+     Future.delayed(Duration(seconds: 1));
   }
 
+//  void navigateToSubPage2(BuildContext context) {
+//    print("----NoteApp hash code ${_bloc.hashCode}");
+//    Navigator.push(context, MaterialPageRoute(builder: (_) => Details(_bloc)));
+//    Future.delayed(Duration(seconds: 1));
+//    print("--NoteApp recieve data in first screen");
+//    _addNoteItem(speechResult);
+//  }
+
   void _addNoteItem(Speech speech) async {
+    print("--NoteApp _addNoteItem");
     if (speech != null) {
       Note note = Note();
       note = converterToNote(speech);
       _bloc.add(note);
+      setState(() {
+        print("--NoteApp refresh");
+      });
     }
   }
 
@@ -129,8 +148,6 @@ class NoteListState extends State<NoteList> {
     super.dispose();
   }
 
+
 }
 
-Note converterToNote(Speech speech) {
-  return Note.entry(capitalizeFirstLetter(speech.entry));
-}

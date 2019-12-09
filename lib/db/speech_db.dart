@@ -73,6 +73,9 @@ class DBProvider {
     final db = await database;
     var res = await db.query("Note");
     List<Note> list = res.isNotEmpty ? res.map((c) => Note.fromMap(c)).toList() : [];
+    print("-- DBProvider list.txt");
+    list.forEach((element) => print(element.txt));
+    print("-- DBProvider list.length ${list.length}");
     return list;
   }
 

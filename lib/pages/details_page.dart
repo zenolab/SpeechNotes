@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:speech_notes/block/notess_block.dart';
+import 'package:speech_notes/model/converter.dart';
 import 'package:speech_notes/model/speech.dart';
 import 'package:speech_recognition/speech_recognition.dart';
 
 import '../common.dart';
 
 class Details extends StatefulWidget {
+  
+  final NotesBloc bloc;
+  Details(this.bloc);
 
   @override
-  _VoiceSampleState createState() => _VoiceSampleState();
+  _VoiceSampleState createState() => _VoiceSampleState(bloc);
 }
 
 class _VoiceSampleState extends State<Details> {
@@ -20,6 +25,10 @@ class _VoiceSampleState extends State<Details> {
   Speech _speechContainer =  Speech();
   var _txtEntryController = TextEditingController();
 
+  NotesBloc bloc;
+
+  _VoiceSampleState(this.bloc);
+
   @override
   void initState() {
     super.initState();
@@ -28,6 +37,8 @@ class _VoiceSampleState extends State<Details> {
 
   @override
   Widget build(BuildContext context) {
+
+   // bloc.add(note;);
     _txtEntryController.text = _resultText;
     _speechContainer.entry = _txtEntryController.text;
 
@@ -69,6 +80,7 @@ class _VoiceSampleState extends State<Details> {
                       keyboardType: TextInputType.text,
                       onFieldSubmitted: (txtEntryController) {
                         _speechContainer.entry = this._txtEntryController.text;
+                        bloc.add(converterToNote(_speechContainer)); //not work
                         Navigator.pop(context, _speechContainer);
                       },
                       focusNode: FocusNode(),
@@ -77,7 +89,12 @@ class _VoiceSampleState extends State<Details> {
                      RaisedButton(
                       onPressed: () {
                         _speechContainer.entry = _txtEntryController.text;
+
+                        bloc.add(converterToNote(_speechContainer)); //not work
+
                         Navigator.pop(context, _speechContainer);
+                        print("--Details second hash code ${bloc.hashCode}");
+
                       },
                       child: Text('Done'),
                       color: Colors.blue,

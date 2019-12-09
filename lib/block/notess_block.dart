@@ -8,8 +8,10 @@ class NotesBloc {
   get notes => _clientController.stream;
 
   getNotes() async {
+    print("--NotesBloc getNotes");
     _clientController.sink.add(await DBProvider.db.getAllNotes());
   }
+
 
   NotesBloc() {
     getNotes();
@@ -21,6 +23,7 @@ class NotesBloc {
   }
 
   add(Note note) {
+    print("--NotesBloc add ${note.txt}");
     DBProvider.db.newNote(note);
     getNotes();
   }
