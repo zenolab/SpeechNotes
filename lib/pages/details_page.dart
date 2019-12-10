@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:speech_notes/block/notess_block.dart';
-import 'package:speech_notes/model/converter.dart';
+import 'package:speech_notes/converter/converter.dart';
+import 'package:speech_notes/model/note_model.dart';
 import 'package:speech_notes/model/speech.dart';
 import 'package:speech_recognition/speech_recognition.dart';
 
 import '../common.dart';
 
 class Details extends StatefulWidget {
-  
-  final NotesBloc bloc;
-  Details(this.bloc);
 
   @override
-  _VoiceSampleState createState() => _VoiceSampleState(bloc);
+  _VoiceSampleState createState() => _VoiceSampleState();
 }
 
 class _VoiceSampleState extends State<Details> {
@@ -22,12 +20,13 @@ class _VoiceSampleState extends State<Details> {
 
   String _resultText = "";
 
-  Speech _speechContainer =  Speech();
+  Speech _speech =  Speech();
+  Note _note = Note();
   var _txtEntryController = TextEditingController();
 
-  NotesBloc bloc;
+  final NotesBloc bloc;
 
-  _VoiceSampleState(this.bloc);
+  _VoiceSampleState({this.bloc});
 
   @override
   void initState() {
@@ -38,9 +37,8 @@ class _VoiceSampleState extends State<Details> {
   @override
   Widget build(BuildContext context) {
 
-   // bloc.add(note;);
     _txtEntryController.text = _resultText;
-    _speechContainer.entry = _txtEntryController.text;
+    _speech.entry = _txtEntryController.text;
 
     Scaffold scaffold = Scaffold(
       body: Container(
@@ -79,22 +77,14 @@ class _VoiceSampleState extends State<Details> {
                       controller: _txtEntryController,
                       keyboardType: TextInputType.text,
                       onFieldSubmitted: (txtEntryController) {
-                        _speechContainer.entry = this._txtEntryController.text;
-                        bloc.add(converterToNote(_speechContainer)); //not work
-                        Navigator.pop(context, _speechContainer);
+                        comeBack();
                       },
                       focusNode: FocusNode(),
                     ),
                      SizedBox(height: 5.0),
                      RaisedButton(
                       onPressed: () {
-                        _speechContainer.entry = _txtEntryController.text;
-
-                        bloc.add(converterToNote(_speechContainer)); //not work
-
-                        Navigator.pop(context, _speechContainer);
-                        print("--Details second hash code ${bloc.hashCode}");
-
+                        comeBack();
                       },
                       child: Text('Done'),
                       color: Colors.blue,
@@ -107,8 +97,14 @@ class _VoiceSampleState extends State<Details> {
       ),
     );
 
-    _speechContainer.entry = _txtEntryController.text;
+    _speech.entry = _txtEntryController.text;
     return scaffold;
+  }
+
+  void comeBack() {
+    _speech.entry = this._txtEntryController.text;
+    _note = converterToNote(_speech);
+    Navigator.pop(context, _note);
   }
 
   @override
@@ -148,4 +144,6 @@ class _VoiceSampleState extends State<Details> {
       _speechRecognition.listen(locale: eng).then((result) => print('$result'));
     }
   }
+
+
 }

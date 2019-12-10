@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:speech_notes/model/converter.dart';
-import 'package:speech_notes/model/speech.dart';
-import 'package:speech_notes/util.dart';
 
 import '../block/notess_block.dart';
 import 'details_page.dart';
 import '../model/note_model.dart';
 
-///Not work update ui page after back from Details Screen
-///Try with Inherited widget such as  -  final bloc = MyBloc.of(context);
 class NoteApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -83,7 +78,7 @@ class NoteListState extends State<NoteList> {
   }
 
   Future<bool> _handleBack() {
-    _bloc.getNotes();//work
+    print("-- NoteApp  back button action");
     return Future<bool>.value(false);
   }
 
@@ -92,28 +87,14 @@ class NoteListState extends State<NoteList> {
   }
 
   Future navigateToSubPage(context) async {
-    print("----NoteApp hash code ${_bloc.hashCode}");
-     Navigator.push(context, MaterialPageRoute(builder: (_) => Details(_bloc)));
-     Future.delayed(Duration(seconds: 1));
+    Note note = Note();
+    note = await Navigator.push(context, MaterialPageRoute(builder: (context) => Details()));
+    _addNoteItem(note);
   }
 
-//  void navigateToSubPage2(BuildContext context) {
-//    print("----NoteApp hash code ${_bloc.hashCode}");
-//    Navigator.push(context, MaterialPageRoute(builder: (_) => Details(_bloc)));
-//    Future.delayed(Duration(seconds: 1));
-//    print("--NoteApp recieve data in first screen");
-//    _addNoteItem(speechResult);
-//  }
-
-  void _addNoteItem(Speech speech) async {
-    print("--NoteApp _addNoteItem");
-    if (speech != null) {
-      Note note = Note();
-      note = converterToNote(speech);
+  void _addNoteItem(Note note) {
+    if (note != null) {
       _bloc.add(note);
-      setState(() {
-        print("--NoteApp refresh");
-      });
     }
   }
 
@@ -144,7 +125,7 @@ class NoteListState extends State<NoteList> {
 
   @override
   void dispose() {
-    _bloc.dispose();
+    _bloc?.dispose();
     super.dispose();
   }
 
